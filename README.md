@@ -29,7 +29,7 @@ In a link:
       },
     ));
    },
-   child: Text("View application data")));
+   child: Text("View application data"))
    ```
 
 
