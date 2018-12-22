@@ -18,6 +18,7 @@ class _DataviewPageState extends State<DataviewPage> {
   @override
   void dispose() {
     addDirController.dispose();
+    this.bloc.dispose();
     super.dispose();
   }
 
