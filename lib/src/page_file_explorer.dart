@@ -11,8 +11,8 @@ class _DataviewPageState extends State<DataviewPage> {
 
   @override
   void initState() {
-    super.initState();
     this.bloc = ItemsBloc(this.path);
+    super.initState();
   }
 
   @override
@@ -47,7 +47,7 @@ class _DataviewPageState extends State<DataviewPage> {
                   title: Text(item.filename),
                   leading: item.icon,
                   trailing: IconButton(
-                    icon: Icon(Icons.delete),
+                    icon: Icon(Icons.delete, color: Colors.grey[350]),
                     onPressed: () {
                       _confirmDeleteDialog(item);
                     },
@@ -59,7 +59,7 @@ class _DataviewPageState extends State<DataviewPage> {
                     } else {
                       path = this.path + "/" + item.filename;
                     }
-                    if (item.type == "folder") {
+                    if (item.isDirectory == true) {
                       Navigator.of(context).push(PageRouteBuilder(
                           pageBuilder: (_, __, ___) => DataviewPage(path)));
                     }

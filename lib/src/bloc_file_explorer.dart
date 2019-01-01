@@ -16,22 +16,24 @@ class ItemsBloc {
   }
 
   deleteItem(DirectoryItem item) async {
-    bool ok = await rm(item);
-    if (ok == false) {
-      print("Can not delete item");
-      return;
+    try {
+      await rm(item).then((v) {
+        lsDir(this.path);
+      });
+    } catch (e) {
+      print("Can not delete directory: $e.message");
     }
-    lsDir(this.path);
   }
 
   createDir(String dirPath, String dirName) async {
     String path = dirPath + dirName;
-    bool ok = await mkdir(path);
-    if (ok == false) {
-      print("Can not create directory");
-      return;
+    try {
+      await mkdir(path).then((v) {
+        lsDir(dirPath);
+      });
+    } catch (e) {
+      print("Can not create directory: $e.message");
     }
-    lsDir(dirPath);
   }
 
   lsDir([String path = "/"]) async {
@@ -39,8 +41,7 @@ class ItemsBloc {
       List<DirectoryItem> dirs = await ls(path);
       _itemController.sink.add(dirs);
     } catch (e) {
-      print("Can not ls dir");
-      print(e);
+      print("Can not ls dir: $e.message");
     }
   }
 }
