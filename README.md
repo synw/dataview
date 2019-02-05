@@ -2,6 +2,11 @@
 
 A file explorer for the application's documents directory.
 
+   ```yaml
+   dependencies:
+      dataview: ^0.1.1
+   ```
+
 ![Screenshot](screenshot.gif)
 
 ## Usage
@@ -12,9 +17,9 @@ In a router:
    import 'package:dataview/dataview.dart';
 
    final routes = {
-	// ...
-	'/dataview': (BuildContext context) => new DataviewPage("/"),
-	};
+    // ...
+    '/dataview': (BuildContext context) => new DataviewPage("/"),
+    };
    ```
 
 In a link:
@@ -27,7 +32,7 @@ In a link:
     onPressed: () {
      Navigator.of(context).push(MaterialPageRoute(
       builder: (context) {
-	   return DataviewPage("/");
+       return DataviewPage("/");
       },
     ));
    },
