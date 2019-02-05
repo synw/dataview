@@ -2,6 +2,8 @@
 
 A file explorer for the application's documents directory.
 
+![Screenshot](screenshot.gif)
+
 ## Usage
 
 In a router:
