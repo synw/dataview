@@ -1,14 +1,27 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:filesize/filesize.dart' as fs;
 
 class DirectoryItem {
-  DirectoryItem(this.item, this.filename) : icon = setIcon(item, filename);
+  DirectoryItem(this.item, this.filename)
+      : icon = setIcon(item, filename),
+        filesize = _getFilesize(item);
 
   final dynamic item;
   final String filename;
   Icon icon;
+  String filesize = "";
 
   bool get isDirectory => item is Directory;
+
+  static String _getFilesize(dynamic _item) {
+    if (_item is File) {
+      String size = fs.filesize(_item.lengthSync());
+      return "$size";
+    } else {
+      return "";
+    }
+  }
 
   static Icon setIcon(dynamic _item, String _filename) {
     Icon icon;

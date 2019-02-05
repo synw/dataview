@@ -1,9 +1,13 @@
+import 'dart:io';
 import 'dart:async';
 import "models.dart";
 import "commands.dart";
 
 class ItemsBloc {
   final String path;
+
+  List<Directory> folders;
+  List<File> files;
 
   ItemsBloc(this.path) {
     lsDir(this.path);

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_slidable/flutter_slidable.dart';
 import "bloc_file_explorer.dart";
 import "models.dart";
 
@@ -6,6 +7,7 @@ class _DataviewPageState extends State<DataviewPage> {
   ItemsBloc bloc;
   String path;
   final addDirController = TextEditingController();
+  SlidableController slidableController;
 
   _DataviewPageState(this.path);
 
@@ -20,6 +22,50 @@ class _DataviewPageState extends State<DataviewPage> {
     addDirController.dispose();
     this.bloc.dispose();
     super.dispose();
+  }
+
+  _showSnackBar(BuildContext context, String text) {
+    Scaffold.of(context).showSnackBar(SnackBar(content: Text(text)));
+  }
+
+  Widget _buildVerticalListItem(BuildContext context, DirectoryItem item) {
+    return ListTile(
+      title: Text(item.filename),
+      dense: true,
+      leading: item.icon,
+      trailing: Text("${item.filesize}"),
+      onTap: () {
+        String path;
+        if (path == "/") {
+          path = this.path + item.filename;
+        } else {
+          path = this.path + "/" + item.filename;
+        }
+        if (item.isDirectory == true) {
+          Navigator.of(context).push(PageRouteBuilder(
+              pageBuilder: (_, __, ___) => DataviewPage(path)));
+        }
+      },
+    );
+  }
+
+  Widget _getSlidableWithLists(BuildContext context, DirectoryItem item) {
+    return Slidable(
+      key: Key(item.filename),
+      controller: slidableController,
+      direction: Axis.horizontal,
+      delegate: SlidableBehindDelegate(),
+      actionExtentRatio: 0.25,
+      child: _buildVerticalListItem(context, item),
+      actions: <Widget>[
+        IconSlideAction(
+          caption: 'Delete',
+          color: Colors.red,
+          icon: Icons.delete,
+          onTap: () => _confirmDeleteDialog(item),
+        ),
+      ],
+    );
   }
 
   @override
@@ -40,33 +86,11 @@ class _DataviewPageState extends State<DataviewPage> {
             AsyncSnapshot<List<DirectoryItem>> snapshot) {
           if (snapshot.hasData) {
             return ListView.builder(
-              itemCount: snapshot.data.length,
-              itemBuilder: (BuildContext context, int index) {
-                DirectoryItem item = snapshot.data[index];
-                return ListTile(
-                  title: Text(item.filename),
-                  leading: item.icon,
-                  trailing: IconButton(
-                    icon: Icon(Icons.delete, color: Colors.grey[350]),
-                    onPressed: () {
-                      _confirmDeleteDialog(item);
-                    },
-                  ),
-                  onTap: () {
-                    String path;
-                    if (path == "/") {
-                      path = this.path + item.filename;
-                    } else {
-                      path = this.path + "/" + item.filename;
-                    }
-                    if (item.isDirectory == true) {
-                      Navigator.of(context).push(PageRouteBuilder(
-                          pageBuilder: (_, __, ___) => DataviewPage(path)));
-                    }
-                  },
-                );
-              },
-            );
+                itemCount: snapshot.data.length,
+                itemBuilder: (BuildContext context, int index) {
+                  DirectoryItem item = snapshot.data[index];
+                  return _getSlidableWithLists(context, item);
+                });
           } else {
             return Center(child: CircularProgressIndicator());
           }
@@ -84,7 +108,11 @@ class _DataviewPageState extends State<DataviewPage> {
             content: SingleChildScrollView(
               child: ListBody(
                 children: <Widget>[
-                  TextField(controller: addDirController),
+                  TextField(
+                    controller: addDirController,
+                    autofocus: true,
+                    autocorrect: false,
+                  ),
                   FlatButton(
                     child: Text("Create"),
                     onPressed: () {

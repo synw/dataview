@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:async';
 import 'package:path_provider/path_provider.dart';
 import "models.dart";
 
@@ -34,16 +35,27 @@ Future<List<DirectoryItem>> ls(
     } else {
       dirpath = path;
     }
-    print("LS " + dirpath);
-
     Directory dir = Directory(dirpath);
     List contents = dir.listSync()..sort((a, b) => a.path.compareTo(b.path));
-    var dl = <DirectoryItem>[];
-    String ftype;
+    var dirs = <Directory>[];
+    var files = <File>[];
     for (var fileOrDir in contents) {
-      final String slug = fileOrDir.path.replaceAll(RegExp(dirpath + "/"), '');
-      DirectoryItem f = DirectoryItem(fileOrDir, slug);
-      dl.add(f);
+      if (fileOrDir is Directory) {
+        dirs.add(fileOrDir);
+      } else {
+        files.add(fileOrDir);
+      }
+    }
+    var dl = <DirectoryItem>[];
+    for (var el in dirs) {
+      final String slug = el.path.replaceAll(RegExp(dirpath + "/"), '');
+      DirectoryItem item = DirectoryItem(el, slug);
+      dl.add(item);
+    }
+    for (var el in files) {
+      final String slug = el.path.replaceAll(RegExp(dirpath + "/"), '');
+      DirectoryItem item = DirectoryItem(el, slug);
+      dl.add(item);
     }
     return dl;
   } catch (e) {
