@@ -24,10 +24,6 @@ class _DataviewPageState extends State<DataviewPage> {
     super.dispose();
   }
 
-  _showSnackBar(BuildContext context, String text) {
-    Scaffold.of(context).showSnackBar(SnackBar(content: Text(text)));
-  }
-
   Widget _buildVerticalListItem(BuildContext context, DirectoryItem item) {
     return ListTile(
       title: Text(item.filename),
