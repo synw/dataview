@@ -17,15 +17,10 @@ class MyHomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        body: Center(
-      child: RaisedButton(
-        child: Text("Dataview"),
-        onPressed: () => Navigator.of(context).push(MaterialPageRoute(
-              builder: (context) {
-                return DataviewPage("/");
-              },
-            )),
+      body: DataviewPage(
+        "/",
+        uploadTo: "http://192.168.1.2:8082/upload",
       ),
-    ));
+    );
   }
 }

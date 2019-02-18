@@ -1,67 +1,30 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import "bloc_file_explorer.dart";
 import "models.dart";
 
 class _DataviewPageState extends State<DataviewPage> {
-  ItemsBloc bloc;
-  String path;
-  final addDirController = TextEditingController();
-  SlidableController slidableController;
-
-  _DataviewPageState(this.path);
-
-  @override
-  void initState() {
-    this.bloc = ItemsBloc(this.path);
-    super.initState();
+  _DataviewPageState(this.path, {this.uploadTo}) {
+    path = path ?? "/";
+    _bloc = ItemsBloc(path);
   }
+
+  String path;
+  String uploadTo;
+
+  ItemsBloc _bloc;
+
+  final _addDirController = TextEditingController();
+  SlidableController _slidableController;
+
+  init() {}
 
   @override
   void dispose() {
-    addDirController.dispose();
-    this.bloc.dispose();
+    _addDirController.dispose();
+    _bloc.dispose();
     super.dispose();
-  }
-
-  Widget _buildVerticalListItem(BuildContext context, DirectoryItem item) {
-    return ListTile(
-      title: Text(item.filename),
-      dense: true,
-      leading: item.icon,
-      trailing: Text("${item.filesize}"),
-      onTap: () {
-        String path;
-        if (path == "/") {
-          path = this.path + item.filename;
-        } else {
-          path = this.path + "/" + item.filename;
-        }
-        if (item.isDirectory == true) {
-          Navigator.of(context).push(PageRouteBuilder(
-              pageBuilder: (_, __, ___) => DataviewPage(path)));
-        }
-      },
-    );
-  }
-
-  Widget _getSlidableWithLists(BuildContext context, DirectoryItem item) {
-    return Slidable(
-      key: Key(item.filename),
-      controller: slidableController,
-      direction: Axis.horizontal,
-      delegate: SlidableBehindDelegate(),
-      actionExtentRatio: 0.25,
-      child: _buildVerticalListItem(context, item),
-      actions: <Widget>[
-        IconSlideAction(
-          caption: 'Delete',
-          color: Colors.red,
-          icon: Icons.delete,
-          onTap: () => _confirmDeleteDialog(item),
-        ),
-      ],
-    );
   }
 
   @override
@@ -72,12 +35,12 @@ class _DataviewPageState extends State<DataviewPage> {
           icon: Icon(Icons.create_new_folder),
           tooltip: 'Add directory',
           onPressed: () {
-            _addDir();
+            _addDir(context);
           },
         ),
       ]),
       body: StreamBuilder<List<DirectoryItem>>(
-        stream: this.bloc.items,
+        stream: this._bloc.items,
         builder: (BuildContext context,
             AsyncSnapshot<List<DirectoryItem>> snapshot) {
           if (snapshot.hasData) {
@@ -85,7 +48,15 @@ class _DataviewPageState extends State<DataviewPage> {
                 itemCount: snapshot.data.length,
                 itemBuilder: (BuildContext context, int index) {
                   DirectoryItem item = snapshot.data[index];
-                  return _getSlidableWithLists(context, item);
+                  return Slidable(
+                    key: Key(item.filename),
+                    controller: _slidableController,
+                    direction: Axis.horizontal,
+                    delegate: SlidableBehindDelegate(),
+                    actionExtentRatio: 0.25,
+                    child: _buildVerticalListItem(context, item),
+                    actions: _getSlideIconActions(context, item),
+                  );
                 });
           } else {
             return Center(child: CircularProgressIndicator());
@@ -95,26 +66,82 @@ class _DataviewPageState extends State<DataviewPage> {
     );
   }
 
-  _addDir() {
+  Widget _buildVerticalListItem(BuildContext _context, DirectoryItem item) {
+    return ListTile(
+      title: Text(item.filename),
+      dense: true,
+      leading: item.icon,
+      trailing: Text("${item.filesize}"),
+      onTap: () {
+        String _p;
+        if (path == "/") {
+          _p = path + item.filename;
+        } else {
+          _p = path + "/" + item.filename;
+        }
+        if (item.isDirectory == true) {
+          Navigator.of(_context).push(PageRouteBuilder(
+              pageBuilder: (_, __, ___) => DataviewPage(
+                    _p,
+                    uploadTo: uploadTo,
+                  )));
+        }
+      },
+    );
+  }
+
+  List<Widget> _getSlideIconActions(BuildContext _context, DirectoryItem item) {
+    List<Widget> ic = [];
+    ic.add(IconSlideAction(
+      caption: 'Delete',
+      color: Colors.red,
+      icon: Icons.delete,
+      onTap: () => _confirmDeleteDialog(_context, item),
+    ));
+    if (uploadTo != null) {
+      if (item.item is File) {
+        ic.add(IconSlideAction(
+          caption: 'Upload',
+          color: Colors.lightBlue,
+          icon: Icons.file_upload,
+          onTap: () => _bloc.upload(
+              serverUrl: uploadTo, filename: item.filename, file: item.item),
+        ));
+      }
+    }
+    return ic;
+  }
+
+  _addDir(BuildContext _context) {
     showDialog(
-      context: context,
+      context: _context,
       builder: (BuildContext context) {
         return AlertDialog(
             title: Text("Create a directory"),
+            actions: <Widget>[
+              FlatButton(
+                child: Text("Cancel"),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+              ),
+              FlatButton(
+                child: Text("Create"),
+                onPressed: () {
+                  _bloc.createDir(_addDirController.text).then((_) {
+                    Navigator.of(context).pop();
+                    _bloc.lsDir();
+                  });
+                },
+              ),
+            ],
             content: SingleChildScrollView(
               child: ListBody(
                 children: <Widget>[
                   TextField(
-                    controller: addDirController,
+                    controller: _addDirController,
                     autofocus: true,
                     autocorrect: false,
-                  ),
-                  FlatButton(
-                    child: Text("Create"),
-                    onPressed: () {
-                      bloc.createDir(this.path, addDirController.text);
-                      Navigator.of(context).pop();
-                    },
                   ),
                 ],
               ),
@@ -123,9 +150,9 @@ class _DataviewPageState extends State<DataviewPage> {
     );
   }
 
-  _confirmDeleteDialog(DirectoryItem item) {
+  _confirmDeleteDialog(BuildContext _context, DirectoryItem item) {
     showDialog(
-      context: context,
+      context: _context,
       builder: (BuildContext context) {
         return AlertDialog(
           title: Text("Delete ${item.filename}?"),
@@ -140,8 +167,10 @@ class _DataviewPageState extends State<DataviewPage> {
               child: Text("Delete"),
               color: Colors.red,
               onPressed: () {
-                bloc.deleteItem(item);
-                Navigator.of(context).pop();
+                _bloc.deleteItem(item).then((_) {
+                  Navigator.of(context).pop();
+                  _bloc.lsDir();
+                });
               },
             ),
           ],
@@ -152,9 +181,12 @@ class _DataviewPageState extends State<DataviewPage> {
 }
 
 class DataviewPage extends StatefulWidget {
-  final String path;
+  DataviewPage(this.path, {this.uploadTo});
 
-  DataviewPage(this.path);
+  final String path;
+  final String uploadTo;
+
   @override
-  _DataviewPageState createState() => _DataviewPageState(this.path);
+  _DataviewPageState createState() =>
+      _DataviewPageState(path, uploadTo: uploadTo);
 }
