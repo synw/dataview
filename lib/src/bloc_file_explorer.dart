@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:dio/dio.dart';
-import 'package:fluttertoast/fluttertoast.dart';
+import 'messages.dart';
 import "models.dart";
 import "commands.dart";
 import 'exceptions.dart';
@@ -24,7 +24,10 @@ class ItemsBloc {
 
   get items => _itemController.stream;
 
-  Dio dio = Dio();
+  Dio dio = Dio(new BaseOptions(
+    connectTimeout: 5000,
+    headers: {"user-agent": "Dataview"},
+  ));
 
   getDocumentsDir() async {
     _documentsDirectory = await getApplicationDocumentsDirectory();
@@ -65,47 +68,26 @@ class ItemsBloc {
     }
   }
 
-  upload({String serverUrl, File file, String filename}) async {
+  void upload({String serverUrl, File file, String filename}) async {
+    var response;
+    if (file.existsSync() == false) {
+      throw FileNotFound("File ${file.path} does not exist");
+    }
+    print("Uploading ${file.path} to $serverUrl");
+    FormData formData = FormData.from({"file": UploadFileInfo(file, filename)});
     try {
-      if (file.existsSync() == false) {
-        throw FileNotFound("File ${file.path} does not exist");
-      }
-      print("Uploading ${file.path} to $serverUrl");
-      FormData formData =
-          FormData.from({"file": UploadFileInfo(file, filename)});
-      var response = await dio.post(serverUrl, data: formData).catchError((e) {
-        throw (e);
-      });
-      if (response.statusCode == 200) {
-        Fluttertoast.showToast(
-            msg: "File uploaded",
-            toastLength: Toast.LENGTH_SHORT,
-            gravity: ToastGravity.BOTTOM,
-            timeInSecForIos: 1,
-            backgroundColor: Colors.green,
-            textColor: Colors.white,
-            fontSize: 16.0);
-      } else {
-        Fluttertoast.showToast(
-            msg: "Response status code: ${response.statusCode}",
-            toastLength: Toast.LENGTH_LONG,
-            gravity: ToastGravity.BOTTOM,
-            timeInSecForIos: 3,
-            backgroundColor: Colors.red,
-            textColor: Colors.white,
-            fontSize: 16.0);
-      }
+      response = await dio.post(serverUrl, data: formData);
     } on DioError catch (e) {
-      Fluttertoast.showToast(
-          msg: "Error ${e.message}",
-          toastLength: Toast.LENGTH_LONG,
-          gravity: ToastGravity.BOTTOM,
-          timeInSecForIos: 3,
-          backgroundColor: Colors.red,
-          textColor: Colors.white,
-          fontSize: 16.0);
+      popErrorMessage("${e.type} : ${e.message}");
     } catch (e) {
       throw (e);
+    }
+    if (response) {
+      if (response.statusCode == 200) {
+        popOkMessage("File uploaded");
+      } else {
+        popErrorMessage("Response status code: ${response.statusCode}");
+      }
     }
   }
 }
