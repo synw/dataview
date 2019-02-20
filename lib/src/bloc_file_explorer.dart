@@ -1,6 +1,5 @@
 import 'dart:io';
 import 'dart:async';
-import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:dio/dio.dart';
 import 'messages.dart';
@@ -11,7 +10,8 @@ import 'exceptions.dart';
 class ItemsBloc {
   ItemsBloc(this.path) {
     getDocumentsDir().then((_) {
-      _currentDirectory = Directory(_documentsDirectory.path + path);
+      _currentDirectory = Directory(
+          _documentsDirectory.path.replaceFirst("/app_flutter", "") + path);
       lsDir(_currentDirectory);
     });
   }
@@ -20,7 +20,7 @@ class ItemsBloc {
   Directory _documentsDirectory;
   Directory _currentDirectory;
 
-  final _itemController = StreamController<List<DirectoryItem>>.broadcast();
+  final _itemController = StreamController<List<DirectoryItem>>();
 
   get items => _itemController.stream;
 
@@ -82,7 +82,7 @@ class ItemsBloc {
     } catch (e) {
       throw (e);
     }
-    if (response) {
+    if (response != null) {
       if (response.statusCode == 200) {
         popOkMessage("File uploaded");
       } else {
