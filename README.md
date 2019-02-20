@@ -1,5 +1,7 @@
 # Dataview
 
+[![Build Status](https://app.bitrise.io/app/88344c830e936002/status.svg?token=nFg7ltBAPglC0HDwDjy5BA)](https://app.bitrise.io/app/88344c830e936002#/builds)
+
 A file explorer for the application's documents directory.
 
    ```yaml
