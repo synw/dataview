@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import "bloc_file_explorer.dart";
 import "models.dart";
+import 'zip_upload/zip_upload.dart';
 
 class _DataviewPageState extends State<DataviewPage> {
   _DataviewPageState(this.path, {this.uploadTo}) {
@@ -107,6 +108,13 @@ class _DataviewPageState extends State<DataviewPage> {
           onTap: () => _bloc.upload(
               serverUrl: uploadTo, filename: item.filename, file: item.item),
         ));
+      } else if (item.item is Directory) {
+        ic.add(IconSlideAction(
+            caption: 'Upload',
+            color: Colors.lightBlue,
+            icon: Icons.file_upload,
+            onTap: () =>
+                ZipUpload.zipUpload(directory: item, serverUrl: uploadTo)));
       }
     }
     return ic;

@@ -50,6 +50,8 @@ class DirectoryItem {
   String get filesize => _filesize;
   String get filename => _filename;
   bool get isDirectory => item is Directory;
+  String get path => item.path;
+  Directory get parent => item.parent;
 
   String _getFilesize(FileSystemEntity _item) {
     if (_item is File) {
