@@ -50,7 +50,7 @@ Specify the `uploadTo` parameter to be able to upload to a server:
 A defautlt basic development [Go server](https://github.com/synw/dataview/tree/master/server) is provided for local usage. A compiled version for Linux is attached to the [Github release](https://github.com/synw/dataview/releases/latest). To run it:
 
    ```bash
-   ./devserver
+   ./devserver_linux64
    ```
 
 It will receive the files in the same directory as the running binary
