@@ -1,8 +1,8 @@
 name: dataview
 author: synw <synwe@yahoo.com>
-description: Explore the application's documents directory. It provides a quick way to look at an application's data directory content for debug purposes. 
+description: Explore the application's documents directory. A quick way to look at an application's data directory content for debug purposes. Can also upload files and directories to a server.
 homepage: https://github.com/synw/dataview
-version: 0.1.1
+version: 0.2.0
 
 environment:
   sdk: ">=2.1.0 <3.0.0"
