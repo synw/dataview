@@ -2,12 +2,7 @@
 
 [![pub package](https://img.shields.io/pub/v/dataview.svg)](https://pub.dartlang.org/packages/dataview) [![Build Status](https://app.bitrise.io/app/88344c830e936002/status.svg?token=nFg7ltBAPglC0HDwDjy5BA)](https://app.bitrise.io/app/88344c830e936002#/builds)
 
-A file explorer for the application's documents directory.
-
-   ```yaml
-   dependencies:
-      dataview: ^0.1.1
-   ```
+A file explorer for the application's documents directory. Can upload files and directories to a server.
 
 ![Screenshot](screenshot.gif)
 
@@ -41,4 +36,21 @@ In a link:
    child: Text("View application data"))
    ```
 
+## Upload files and directories
 
+Specify the `uploadTo` parameter to be able to upload to a server:
+
+   ```dart
+   DataviewPage(
+      "/",
+      uploadTo: "http://192.168.1.2:8082/upload",
+   )
+   ```
+
+A defautlt basic development [Go server](https://github.com/synw/dataview/tree/master/server) is provided for local usage. A compiled version for Linux is attached to the [Github release](https://github.com/synw/dataview/releases/latest). To run it:
+
+   ```bash
+   ./devserver
+   ```
+
+It will receive the files in the same directory as the running binary
