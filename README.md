@@ -47,7 +47,7 @@ Specify the `uploadTo` parameter to be able to upload to a server:
    )
    ```
 
-A defautlt basic development [Go server](https://github.com/synw/dataview/tree/master/server) is provided for local usage. A compiled version for Linux is attached to the [Github release](https://github.com/synw/dataview/releases/latest). To run it:
+A default basic development [Go server](https://github.com/synw/dataview/tree/master/server) is provided for local usage. A compiled version for Linux is attached to the [Github release](https://github.com/synw/dataview/releases/latest). To run it:
 
    ```bash
    ./devserver_linux64
