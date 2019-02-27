@@ -2,10 +2,8 @@ import 'dart:io';
 import 'dart:async';
 import 'package:path_provider/path_provider.dart';
 import 'package:dio/dio.dart';
-import 'messages.dart';
 import "models.dart";
 import "commands.dart";
-import 'exceptions.dart';
 
 class ItemsBloc {
   ItemsBloc(this.path) {
@@ -65,29 +63,6 @@ class ItemsBloc {
       _itemController.sink.add(_d.items);
     } catch (e) {
       print("Can not ls dir: $e.message");
-    }
-  }
-
-  void upload({String serverUrl, File file, String filename}) async {
-    var response;
-    if (file.existsSync() == false) {
-      throw FileNotFound("File ${file.path} does not exist");
-    }
-    print("Uploading ${file.path} to $serverUrl");
-    FormData formData = FormData.from({"file": UploadFileInfo(file, filename)});
-    try {
-      response = await dio.post(serverUrl, data: formData);
-    } on DioError catch (e) {
-      popErrorMessage("${e.type} : ${e.message}");
-    } catch (e) {
-      throw (e);
-    }
-    if (response != null) {
-      if (response.statusCode == 200) {
-        popOkMessage("File uploaded");
-      } else {
-        popErrorMessage("Response status code: ${response.statusCode}");
-      }
     }
   }
 }

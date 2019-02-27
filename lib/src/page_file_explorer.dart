@@ -31,43 +31,44 @@ class _DataviewPageState extends State<DataviewPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text("Dataview"), actions: <Widget>[
-        IconButton(
-          icon: Icon(Icons.create_new_folder),
-          tooltip: 'Add directory',
-          onPressed: () {
-            _addDir(context);
-          },
-        ),
-      ]),
-      body: StreamBuilder<List<DirectoryItem>>(
-        stream: this._bloc.items,
-        builder: (BuildContext context,
-            AsyncSnapshot<List<DirectoryItem>> snapshot) {
-          if (snapshot.hasData) {
-            return ListView.builder(
-                itemCount: snapshot.data.length,
-                itemBuilder: (BuildContext context, int index) {
-                  DirectoryItem item = snapshot.data[index];
-                  return Slidable(
-                    key: Key(item.filename),
-                    controller: _slidableController,
-                    direction: Axis.horizontal,
-                    delegate: SlidableBehindDelegate(),
-                    actionExtentRatio: 0.25,
-                    child: _buildVerticalListItem(context, item),
-                    actions: _getSlideIconActions(context, item),
-                  );
-                });
-          } else {
-            return Center(child: CircularProgressIndicator());
-          }
-        },
-      ),
-    );
+        appBar: AppBar(title: Text("Dataview"), actions: <Widget>[
+          IconButton(
+            icon: Icon(Icons.create_new_folder),
+            tooltip: 'Add directory',
+            onPressed: () {
+              _addDir(context);
+            },
+          ),
+        ]),
+        body: Stack(children: <Widget>[
+          StreamBuilder<List<DirectoryItem>>(
+            stream: this._bloc.items,
+            builder: (BuildContext context,
+                AsyncSnapshot<List<DirectoryItem>> snapshot) {
+              if (snapshot.hasData) {
+                return ListView.builder(
+                    itemCount: snapshot.data.length,
+                    itemBuilder: (BuildContext context, int index) {
+                      DirectoryItem item = snapshot.data[index];
+                      return Slidable(
+                        key: Key(item.filename),
+                        controller: _slidableController,
+                        direction: Axis.horizontal,
+                        delegate: SlidableBehindDelegate(),
+                        actionExtentRatio: 0.25,
+                        child: _buildVerticalListItem(context, item),
+                        actions: _getSlideIconActions(context, item),
+                      );
+                    });
+              } else {
+                return Center(child: CircularProgressIndicator());
+              }
+            },
+          ),
+        ]));
   }
 
-  Widget _buildVerticalListItem(BuildContext _context, DirectoryItem item) {
+  Widget _buildVerticalListItem(BuildContext context, DirectoryItem item) {
     return ListTile(
       title: Text(item.filename),
       dense: true,
@@ -81,23 +82,24 @@ class _DataviewPageState extends State<DataviewPage> {
           _p = path + "/" + item.filename;
         }
         if (item.isDirectory == true) {
-          Navigator.of(_context).push(PageRouteBuilder(
-              pageBuilder: (_, __, ___) => DataviewPage(
-                    _p,
-                    uploadTo: uploadTo,
-                  )));
+          Navigator.of(context).push(MaterialPageRoute(builder: (context) {
+            return DataviewPage(
+              _p,
+              uploadTo: uploadTo,
+            );
+          }));
         }
       },
     );
   }
 
-  List<Widget> _getSlideIconActions(BuildContext _context, DirectoryItem item) {
+  List<Widget> _getSlideIconActions(BuildContext context, DirectoryItem item) {
     List<Widget> ic = [];
     ic.add(IconSlideAction(
       caption: 'Delete',
       color: Colors.red,
       icon: Icons.delete,
-      onTap: () => _confirmDeleteDialog(_context, item),
+      onTap: () => _confirmDeleteDialog(context, item),
     ));
     if (uploadTo != null) {
       if (item.item is File) {
@@ -105,24 +107,32 @@ class _DataviewPageState extends State<DataviewPage> {
           caption: 'Upload',
           color: Colors.lightBlue,
           icon: Icons.file_upload,
-          onTap: () => _bloc.upload(
-              serverUrl: uploadTo, filename: item.filename, file: item.item),
+          onTap: () => upload(
+                serverUrl: uploadTo,
+                filename: item.filename,
+                file: item.item,
+                context: context,
+              ),
         ));
       } else if (item.item is Directory) {
         ic.add(IconSlideAction(
             caption: 'Upload',
             color: Colors.lightBlue,
             icon: Icons.file_upload,
-            onTap: () =>
-                ZipUpload.zipUpload(directory: item, serverUrl: uploadTo)));
+            onTap: () {
+              zipUpload(directory: item, serverUrl: uploadTo, context: context)
+                  .catchError((e) {
+                throw (e);
+              });
+            }));
       }
     }
     return ic;
   }
 
-  _addDir(BuildContext _context) {
+  _addDir(BuildContext context) {
     showDialog(
-      context: _context,
+      context: context,
       builder: (BuildContext context) {
         return AlertDialog(
             title: Text("Create a directory"),
@@ -158,9 +168,9 @@ class _DataviewPageState extends State<DataviewPage> {
     );
   }
 
-  _confirmDeleteDialog(BuildContext _context, DirectoryItem item) {
+  _confirmDeleteDialog(BuildContext context, DirectoryItem item) {
     showDialog(
-      context: _context,
+      context: context,
       builder: (BuildContext context) {
         return AlertDialog(
           title: Text("Delete ${item.filename}?"),

@@ -1,84 +1,126 @@
 import 'dart:io';
-import 'package:path/path.dart' as path;
 import 'package:flutter/material.dart';
+import 'package:err/err.dart';
+import 'package:path/path.dart' as path;
 import 'package:flutter/foundation.dart';
 import 'package:archive/archive_io.dart';
 import 'package:dio/dio.dart';
-import 'package:fluttertoast/fluttertoast.dart';
 import 'package:filesize/filesize.dart' as fs;
 import '../models.dart';
+import '../exceptions.dart';
+import '../logger.dart';
 
-class ZipUpload {
-  ZipUpload();
+var dio = Dio();
 
-  static File zip({@required DirectoryItem directory}) {
-    var encoder = ZipFileEncoder();
-    String basename = path.basename(directory.path);
-    popMsg("Processing for $basename");
-    String endPath = "${directory.parent.path}/${directory.filename}.zip";
-    print("ZIPPING $endPath");
-    var timer = Stopwatch()..start();
-    try {
-      encoder.zipDirectory(directory.item, filename: endPath);
-    } catch (e) {
-      popMsg("Error zipping: ${e.message}");
-      throw (e);
-    }
-    timer.stop();
-    File file = File(endPath);
-    String fileSize = fs.filesize(file);
-    print("END ZIPPING in ${timer.elapsedMilliseconds} ms ( $fileSize )");
-    if (timer.elapsedMicroseconds > 1000)
-      popMsg("Directory zipped ( $fileSize ), uploading");
-    return file;
+Future<File> zip(
+    {@required DirectoryItem directory, @required BuildContext context}) async {
+  var encoder = ZipFileEncoder();
+  String basename = path.basename(directory.path);
+  await logger.infoFlash(msg: "Zipping $basename").then((msg) {
+    msg.show(context);
+  });
+  String endPath = "${directory.parent.path}/${directory.filename}.zip";
+  var timer = Stopwatch()..start();
+  try {
+    encoder.zipDirectory(directory.item, filename: endPath);
+  } catch (e) {
+    String msg = "Error zipping: ${e.message}";
+    Err err = await logger.error(msg: msg);
+    err.show(context);
+    return null;
   }
-
-  static upload({@required File file, String serverUrl}) async {
-    try {
-      if (!file.existsSync()) throw ("File ${file.path} not found");
-      var dio = Dio();
-      String filename = path.basename(file.path);
-      FormData formData =
-          FormData.from({"file": UploadFileInfo(file, filename)});
-      var response = await dio.post(serverUrl, data: formData);
-      return response.statusCode;
-    } catch (e) {
-      popMsg("Can not upload: ${e.message}");
-      throw (e);
-    }
+  timer.stop();
+  File file = File(endPath);
+  String fileSize;
+  try {
+    fileSize = fs.filesize(file.lengthSync());
+  } catch (e) {
+    String msg = "Can not calculate filesize: ${e.message}";
+    Err err = await logger.error(msg: msg);
+    err.show(context);
+    return null;
   }
-
-  static zipUpload({@required DirectoryItem directory, String serverUrl}) {
-    File file = zip(directory: directory);
-    var timer = Stopwatch()..start();
-    print("UPLOADING ZIP FILE");
-    upload(file: file, serverUrl: serverUrl).then((_) {
-      timer.stop();
-      popMsg("File uploaded", finished: true);
-      print("FILE UPLOADED in ${timer.elapsedMilliseconds} ms");
-      file.delete();
+  logger.debug(
+      msg: "END ZIPPING in ${timer.elapsedMilliseconds} ms ( $fileSize )");
+  if (timer.elapsedMicroseconds > 1000)
+    await logger
+        .infoFlash(msg: "Directory zipped ( $fileSize ), uploading")
+        .then((msg) {
+      msg.show(context);
     });
-  }
+  return file;
 }
 
-popMsg(String msg, {bool finished = false, error = false}) async {
-  Color color = Colors.yellow;
-  Color txtColor = Colors.black;
-  var duration = Toast.LENGTH_SHORT;
-  if (finished) {
-    color = Colors.green;
-    txtColor = Colors.white;
+Future<bool> upload(
+    {@required String serverUrl,
+    @required File file,
+    @required String filename,
+    @required BuildContext context}) async {
+  var response;
+  if (file.existsSync() == false) {
+    var ex = FileNotFound("File ${file.path} does not exist");
+    Err err = await logger.error(msg: "${ex.message}");
+    err.show(context);
+    return false;
   }
-  if (error) {
-    color = Colors.green;
-    txtColor = Colors.white;
-    duration = Toast.LENGTH_LONG;
+  var timer = Stopwatch()..start();
+  FormData formData = FormData.from({"file": UploadFileInfo(file, filename)});
+  try {
+    print("URL $serverUrl");
+    print("FORM $formData");
+    response = await dio.post(serverUrl, data: formData);
+  } on DioError catch (e) {
+    String msg = "Can not upload: ${e.type} : ${e.message}";
+    Err err = await logger.error(msg: msg);
+    err.show(context);
+    return false;
+  } catch (e) {
+    String msg = "Can not upload: ${e.message}";
+    Err err = await logger.error(msg: msg);
+    err.show(context);
+    return false;
   }
-  Fluttertoast.showToast(
-    msg: msg,
-    backgroundColor: color,
-    textColor: txtColor,
-    toastLength: Toast.LENGTH_SHORT,
-    gravity: ToastGravity.BOTTOM,
-  );
+  if (response != null) {
+    if (response.statusCode != 200) {
+      String msg = "Response status code: ${response.statusCode}";
+      Err err = await logger.error(msg: msg);
+      err.show(context);
+      return false;
+    }
+  }
+  timer.stop();
+  String elapsed = (timer.elapsedMilliseconds / 1000).toStringAsFixed(1);
+  logger.info(msg: "File uploaded in $elapsed s").then((msg) {
+    msg.show(context);
+  });
+  return true;
+}
+
+Future<void> zipUpload(
+    {@required DirectoryItem directory,
+    @required String serverUrl,
+    @required BuildContext context}) async {
+  File file;
+  try {
+    file = await zip(directory: directory, context: context);
+  } catch (e) {
+    String msg = "Can not zip directory: ${e.message}";
+    Err err = await logger.error(msg: msg);
+    err.show(context);
+    return null;
+  }
+  if (file == null) return null;
+  String filename = path.basename(file.path);
+  bool ok = await upload(
+      file: file, serverUrl: serverUrl, filename: filename, context: context);
+  if (!ok) {
+    return null;
+  }
+  try {
+    file.deleteSync();
+  } catch (e) {
+    String msg = "Can not delete file: ${e.message}";
+    Err err = await logger.error(msg: msg);
+    err.show(context);
+  }
 }

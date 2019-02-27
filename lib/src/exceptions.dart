@@ -1,4 +1,4 @@
 class FileNotFound implements Exception {
-  FileNotFound(this.cause);
-  String cause;
+  FileNotFound(this.message);
+  String message;
 }
