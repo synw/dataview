@@ -1,5 +1,11 @@
 import 'package:err/err.dart';
 
-var logger = ErrRouter(
-    errorRoute: [ErrRoute.screen, ErrRoute.console],
-    infoRoute: [ErrRoute.screen, ErrRoute.console]);
+ErrRouter log;
+
+initLogger(ErrRouter errRouter) {
+  log = errRouter ??
+      ErrRouter(
+          errorRoute: [ErrRoute.screen, ErrRoute.console],
+          infoRoute: [ErrRoute.screen, ErrRoute.console],
+          debugRoute: [ErrRoute.blackHole]);
+}

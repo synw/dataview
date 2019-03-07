@@ -1,25 +1,32 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:err/err.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import "bloc_file_explorer.dart";
 import "models.dart";
 import 'zip_upload/zip_upload.dart';
+import 'logger.dart';
 
 class _DataviewPageState extends State<DataviewPage> {
-  _DataviewPageState(this.path, {this.uploadTo}) {
+  _DataviewPageState(this.path, {this.uploadTo, this.errRouter}) {
     path = path ?? "/";
     _bloc = ItemsBloc(path);
   }
 
   String path;
   String uploadTo;
+  ErrRouter errRouter;
 
   ItemsBloc _bloc;
 
   final _addDirController = TextEditingController();
   SlidableController _slidableController;
 
-  init() {}
+  @override
+  void initState() {
+    initLogger(errRouter);
+    super.initState();
+  }
 
   @override
   void dispose() {
