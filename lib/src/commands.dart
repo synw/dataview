@@ -25,9 +25,11 @@ Future<ListedDirectory> getListedDirectory(Directory dir) async {
   var files = <File>[];
   for (var fileOrDir in contents) {
     if (fileOrDir is Directory) {
-      dirs.add(fileOrDir);
+      var dir = Directory("${fileOrDir.path}");
+      dirs.add(dir);
     } else {
-      files.add(fileOrDir);
+      var file = File("${fileOrDir.path}");
+      files.add(file);
     }
   }
   return ListedDirectory(

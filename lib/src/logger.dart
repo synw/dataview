@@ -2,7 +2,7 @@ import 'package:err/err.dart';
 
 ErrRouter log;
 
-initLogger(ErrRouter errRouter) {
+void initLogger(ErrRouter errRouter) {
   log = errRouter ??
       ErrRouter(
           errorRoute: [ErrRoute.screen, ErrRoute.console],

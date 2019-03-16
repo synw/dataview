@@ -9,13 +9,13 @@ import 'logger.dart';
 
 class _DataviewPageState extends State<DataviewPage> {
   _DataviewPageState(this.path, {this.uploadTo, this.errRouter}) {
-    path = path ?? "/";
+    path ??= "/";
     _bloc = ItemsBloc(path);
   }
 
   String path;
-  String uploadTo;
-  ErrRouter errRouter;
+  final String uploadTo;
+  final ErrRouter errRouter;
 
   ItemsBloc _bloc;
 
@@ -38,9 +38,9 @@ class _DataviewPageState extends State<DataviewPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(title: Text("Dataview"), actions: <Widget>[
+        appBar: AppBar(title: const Text("Dataview"), actions: <Widget>[
           IconButton(
-            icon: Icon(Icons.create_new_folder),
+            icon: const Icon(Icons.create_new_folder),
             tooltip: 'Add directory',
             onPressed: () {
               _addDir(context);
@@ -61,14 +61,14 @@ class _DataviewPageState extends State<DataviewPage> {
                         key: Key(item.filename),
                         controller: _slidableController,
                         direction: Axis.horizontal,
-                        delegate: SlidableBehindDelegate(),
+                        delegate: const SlidableBehindDelegate(),
                         actionExtentRatio: 0.25,
                         child: _buildVerticalListItem(context, item),
                         actions: _getSlideIconActions(context, item),
                       );
                     });
               } else {
-                return Center(child: CircularProgressIndicator());
+                return Center(child: const CircularProgressIndicator());
               }
             },
           ),
@@ -89,7 +89,8 @@ class _DataviewPageState extends State<DataviewPage> {
           _p = path + "/" + item.filename;
         }
         if (item.isDirectory == true) {
-          Navigator.of(context).push(MaterialPageRoute(builder: (context) {
+          Navigator.of(context)
+              .push(MaterialPageRoute<DataviewPage>(builder: (context) {
             return DataviewPage(
               _p,
               uploadTo: uploadTo,
@@ -117,7 +118,7 @@ class _DataviewPageState extends State<DataviewPage> {
           onTap: () => upload(
                 serverUrl: uploadTo,
                 filename: item.filename,
-                file: item.item,
+                file: File(item.item.path),
                 context: context,
               ),
         ));
@@ -128,7 +129,7 @@ class _DataviewPageState extends State<DataviewPage> {
             icon: Icons.file_upload,
             onTap: () {
               zipUpload(directory: item, serverUrl: uploadTo, context: context)
-                  .catchError((e) {
+                  .catchError((dynamic e) {
                 throw (e);
               });
             }));
@@ -137,21 +138,21 @@ class _DataviewPageState extends State<DataviewPage> {
     return ic;
   }
 
-  _addDir(BuildContext context) {
-    showDialog(
+  void _addDir(BuildContext context) {
+    showDialog<void>(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-            title: Text("Create a directory"),
+            title: const Text("Create a directory"),
             actions: <Widget>[
               FlatButton(
-                child: Text("Cancel"),
+                child: const Text("Cancel"),
                 onPressed: () {
                   Navigator.of(context).pop();
                 },
               ),
               FlatButton(
-                child: Text("Create"),
+                child: const Text("Create"),
                 onPressed: () {
                   _bloc.createDir(_addDirController.text).then((_) {
                     Navigator.of(context).pop();
@@ -175,21 +176,21 @@ class _DataviewPageState extends State<DataviewPage> {
     );
   }
 
-  _confirmDeleteDialog(BuildContext context, DirectoryItem item) {
-    showDialog(
+  void _confirmDeleteDialog(BuildContext context, DirectoryItem item) {
+    showDialog<void>(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
           title: Text("Delete ${item.filename}?"),
           actions: <Widget>[
             FlatButton(
-              child: Text("Cancel"),
+              child: const Text("Cancel"),
               onPressed: () {
                 Navigator.of(context).pop();
               },
             ),
             FlatButton(
-              child: Text("Delete"),
+              child: const Text("Delete"),
               color: Colors.red,
               onPressed: () {
                 _bloc.deleteItem(item).then((_) {

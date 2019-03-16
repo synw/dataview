@@ -20,7 +20,7 @@ class ListedDirectory {
 
   List<DirectoryItem> get items => _items;
 
-  _getItems() {
+  void _getItems() {
     var _d = <DirectoryItem>[];
     for (var _item in listedDirectories) {
       _d.add(DirectoryItem(item: _item));
@@ -65,21 +65,21 @@ class DirectoryItem {
   Icon _setIcon(dynamic _item, String _filename) {
     Icon _ic;
     if (_item is Directory) {
-      _ic = Icon(Icons.folder, color: Colors.yellow);
+      _ic = const Icon(Icons.folder, color: Colors.yellow);
     } else {
       // special cases
       String extension = _filename.split(".").last;
       if (extension == "db" ||
           extension == "sqlite" ||
           extension == "sqlite3") {
-        return Icon(Icons.dns);
+        return const Icon(Icons.dns);
       } else if (extension == "jpg" ||
           extension == "jpeg" ||
           extension == "png") {
-        return Icon(Icons.image);
+        return const Icon(Icons.image);
       }
       // default
-      _ic = Icon(Icons.description, color: Colors.grey);
+      _ic = const Icon(Icons.description, color: Colors.grey);
     }
     return _ic;
   }

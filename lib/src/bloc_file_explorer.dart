@@ -7,35 +7,35 @@ import "commands.dart";
 
 class ItemsBloc {
   ItemsBloc(this.path) {
-    getDocumentsDir().then((_) {
+    getDocumentsDir().then((dynamic _) {
       _currentDirectory = Directory(
           _documentsDirectory.path.replaceFirst("/app_flutter", "") + path);
       lsDir(_currentDirectory);
     });
   }
 
-  String path;
+  final String path;
   Directory _documentsDirectory;
   Directory _currentDirectory;
 
   final _itemController = StreamController<List<DirectoryItem>>();
 
-  get items => _itemController.stream;
+  Stream<List<DirectoryItem>> get items => _itemController.stream;
 
-  Dio dio = Dio(new BaseOptions(
+  Dio dio = Dio(BaseOptions(
     connectTimeout: 5000,
-    headers: {"user-agent": "Dataview"},
+    headers: <String, dynamic>{"user-agent": "Dataview"},
   ));
 
-  getDocumentsDir() async {
+  Future<void> getDocumentsDir() async {
     _documentsDirectory = await getApplicationDocumentsDirectory();
   }
 
-  dispose() {
+  void dispose() {
     _itemController.close();
   }
 
-  deleteItem(DirectoryItem item) async {
+  Future<void> deleteItem(DirectoryItem item) async {
     try {
       await rm(item);
     } catch (e) {
@@ -43,7 +43,7 @@ class ItemsBloc {
     }
   }
 
-  createDir(String name) async {
+  Future<void> createDir(String name) async {
     try {
       // trim the filename for leading and trailing spaces
       name = name.trim();
@@ -56,7 +56,7 @@ class ItemsBloc {
     }
   }
 
-  lsDir([Directory dir]) async {
+  Future<void> lsDir([Directory dir]) async {
     try {
       dir = dir ?? _currentDirectory;
       ListedDirectory _d = await getListedDirectory(dir);
