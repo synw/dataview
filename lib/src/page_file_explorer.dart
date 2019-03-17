@@ -15,7 +15,7 @@ class _DataviewPageState extends State<DataviewPage> {
 
   String path;
   final String uploadTo;
-  final ErrRouter errRouter;
+  ErrRouter errRouter;
 
   ItemsBloc _bloc;
 
