@@ -1,10 +1,11 @@
 # Changelog
 
-## 0.2.1
+## 0.3.0
 
 - Downgrade to path_provider 0.4.0
 - Improve error management
 - Use more strict linting rules
+- Fix error router initialization
 
 ## 0.2.0
 
