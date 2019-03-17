@@ -16,8 +16,7 @@ dependencies:
   dio: ^2.0.20
   fluttertoast: ^3.0.1
   archive: ^2.0.8
-  err: 
-    path: ../err
+  err: ^0.7.0
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
