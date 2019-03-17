@@ -56,8 +56,8 @@ Future<bool> upload(
   FormData formData =
       FormData.from(<String, dynamic>{"file": UploadFileInfo(file, filename)});
   try {
-    print("URL $serverUrl");
-    print("FORM $formData");
+    //print("URL $serverUrl");
+    //print("FORM $formData");
     response = await dio.post<dynamic>(serverUrl, data: formData);
   } on DioError catch (e) {
     String msg = "Can not upload: ${e.type} : ${e.message}";
