@@ -1,6 +1,6 @@
 # Dataview
 
-[![pub package](https://img.shields.io/pub/v/dataview.svg)](https://pub.dartlang.org/packages/dataview) [![Build Status](https://app.bitrise.io/app/88344c830e936002/status.svg?token=nFg7ltBAPglC0HDwDjy5BA)](https://app.bitrise.io/app/88344c830e936002#/builds)
+[![pub package](https://img.shields.io/pub/v/dataview.svg)](https://pub.dartlang.org/packages/dataview)
 
 A file explorer for the application's documents directory. Can upload files and directories to a server.
 
