@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.3.1
+
+- Upgrade to path_provider ^0.5.0+1
+
 ## 0.3.0
 
 - Downgrade to path_provider 0.4.0
