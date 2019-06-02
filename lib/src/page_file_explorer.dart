@@ -61,7 +61,7 @@ class _DataviewPageState extends State<DataviewPage> {
                         key: Key(item.filename),
                         controller: _slidableController,
                         direction: Axis.horizontal,
-                        delegate: const SlidableBehindDelegate(),
+                        actionPane: SlidableDrawerActionPane(),
                         actionExtentRatio: 0.25,
                         child: _buildVerticalListItem(context, item),
                         actions: _getSlideIconActions(context, item),
