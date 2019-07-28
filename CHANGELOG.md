@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.4.0
+
+- **Api change**: the required positional parameter for path has been changed for an optional named `path` parameter
+- Refactor using the Filex package
+
 ## 0.3.1
 
 - Upgrade to path_provider ^0.5.0+1

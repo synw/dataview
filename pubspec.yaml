@@ -2,10 +2,10 @@ name: dataview
 author: synw <synwe@yahoo.com>
 description: Explore the application's documents directory. A quick way to look at an application's data directory content for debug purposes. Can also upload files and directories to a server.
 homepage: https://github.com/synw/dataview
-version: 0.3.1
+version: 0.4.0
 
 environment:
-  sdk: ">=2.1.0 <3.0.0"
+  sdk: ">=2.2.2 <3.0.0"
 
 dependencies:
   flutter:
