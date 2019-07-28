@@ -15,7 +15,7 @@ In a router:
 
    final routes = {
     // ...
-    '/dataview': (BuildContext context) => new DataviewPage("/"),
+    '/dataview': (BuildContext context) => new DataviewPage(),
     };
    ```
 
@@ -41,10 +41,7 @@ In a link:
 Specify the `uploadTo` parameter to be able to upload to a server:
 
    ```dart
-   DataviewPage(
-      "/",
-      uploadTo: "http://192.168.1.2:8082/upload",
-   )
+   DataviewPage(uploadTo: "http://192.168.1.2:8082/upload")
    ```
 
 A default basic development [Go server](https://github.com/synw/dataview/tree/master/server) is provided for local usage. A compiled version for Linux is attached to the [Github release](https://github.com/synw/dataview/releases/latest). To run it:
