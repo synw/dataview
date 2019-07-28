@@ -18,7 +18,7 @@ class MyHomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: DataviewPage("/", uploadTo: "http://192.168.1.2:8082/upload"),
+      body: DataviewPage(uploadTo: "http://192.168.1.2:8082/upload"),
     );
   }
 }
