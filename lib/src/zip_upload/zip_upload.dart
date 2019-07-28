@@ -5,7 +5,8 @@ import 'package:flutter/foundation.dart';
 import 'package:archive/archive_io.dart';
 import 'package:dio/dio.dart';
 import 'package:filesize/filesize.dart' as fs;
-import '../models.dart';
+import 'package:filex/filex.dart';
+import 'package:pedantic/pedantic.dart';
 import '../exceptions.dart';
 import '../logger.dart';
 
@@ -15,14 +16,14 @@ Future<File> zip(
     {@required DirectoryItem directory, @required BuildContext context}) async {
   var encoder = ZipFileEncoder();
   String basename = path.basename(directory.path);
-  log.infoFlash("Zipping $basename");
+  unawaited(log.infoFlash("Zipping $basename"));
   String endPath = "${directory.parent.path}/${directory.filename}.zip";
   var timer = Stopwatch()..start();
   try {
     encoder.zipDirectory(Directory(directory.item.path), filename: endPath);
   } catch (e) {
     String msg = "Error zipping: ${e.message}";
-    log.errorScreen(msg, context: context);
+    unawaited(log.errorScreen(msg, context: context));
     return null;
   }
   timer.stop();
@@ -32,12 +33,14 @@ Future<File> zip(
     fileSize = fs.filesize(file.lengthSync());
   } catch (e) {
     String msg = "Can not calculate filesize: ${e.message}";
-    log.errorScreen(msg, context: context);
+    unawaited(log.errorScreen(msg, context: context));
     return null;
   }
-  log.debug("END ZIPPING in ${timer.elapsedMilliseconds} ms ( $fileSize )");
-  if (timer.elapsedMicroseconds > 1000)
-    log.infoFlash("Directory zipped ( $fileSize ), uploading");
+  unawaited(log
+      .debug("END ZIPPING in ${timer.elapsedMilliseconds} ms ( $fileSize )"));
+  if (timer.elapsedMicroseconds > 1000) {
+    unawaited(log.infoFlash("Directory zipped ( $fileSize ), uploading"));
+  }
   return file;
 }
 
@@ -49,7 +52,7 @@ Future<bool> upload(
   dynamic response;
   if (file.existsSync() == false) {
     var ex = FileNotFound("File ${file.path} does not exist");
-    log.errorScreen("${ex.message}", context: context);
+    unawaited(log.errorScreen("${ex.message}", context: context));
     return false;
   }
   var timer = Stopwatch()..start();
@@ -61,23 +64,23 @@ Future<bool> upload(
     response = await dio.post<dynamic>(serverUrl, data: formData);
   } on DioError catch (e) {
     String msg = "Can not upload: ${e.type} : ${e.message}";
-    log.errorScreen(msg, context: context);
+    unawaited(log.errorScreen(msg, context: context));
     return false;
   } catch (e) {
     String msg = "Can not upload: ${e.message}";
-    log.errorScreen(msg, context: context);
+    unawaited(log.errorScreen(msg, context: context));
     return false;
   }
   if (response != null) {
     if (response.statusCode != 200) {
       String msg = "Response status code: ${response.statusCode}";
-      log.errorScreen(msg, context: context);
+      unawaited(log.errorScreen(msg, context: context));
       return false;
     }
   }
   timer.stop();
   String elapsed = (timer.elapsedMilliseconds / 1000).toStringAsFixed(1);
-  log.infoScreen("File uploaded in $elapsed s", context: context);
+  unawaited(log.infoScreen("File uploaded in $elapsed s", context: context));
   return true;
 }
 
@@ -90,7 +93,7 @@ Future<void> zipUpload(
     file = await zip(directory: directory, context: context);
   } catch (e) {
     String msg = "Can not zip directory: ${e.message}";
-    log.errorScreen(msg, context: context);
+    unawaited(log.errorScreen(msg, context: context));
     return null;
   }
   if (file == null) return null;
@@ -104,6 +107,6 @@ Future<void> zipUpload(
     file.deleteSync();
   } catch (e) {
     String msg = "Can not delete file: ${e.message}";
-    log.errorScreen(msg, context: context);
+    unawaited(log.errorScreen(msg, context: context));
   }
 }

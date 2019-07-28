@@ -1,3 +1,3 @@
 library dataview;
 
-export 'src/page_file_explorer.dart';
+export 'src/file_explorer.dart';
