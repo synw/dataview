@@ -15,24 +15,24 @@ var dio = Dio();
 Future<File> zip(
     {@required DirectoryItem directory, @required BuildContext context}) async {
   var encoder = ZipFileEncoder();
-  String basename = path.basename(directory.path);
+  final basename = path.basename(directory.path);
   unawaited(log.infoFlash("Zipping $basename"));
-  String endPath = "${directory.parent.path}/${directory.filename}.zip";
+  final endPath = "${directory.parent.path}/${directory.filename}.zip";
   var timer = Stopwatch()..start();
   try {
     encoder.zipDirectory(Directory(directory.item.path), filename: endPath);
   } catch (e) {
-    String msg = "Error zipping: ${e.message}";
+    final msg = "Error zipping: ${e.message}";
     unawaited(log.errorScreen(msg, context: context));
     return null;
   }
   timer.stop();
-  File file = File(endPath);
+  final file = File(endPath);
   String fileSize;
   try {
     fileSize = fs.filesize(file.lengthSync());
   } catch (e) {
-    String msg = "Can not calculate filesize: ${e.message}";
+    final msg = "Can not calculate filesize: ${e.message}";
     unawaited(log.errorScreen(msg, context: context));
     return null;
   }
@@ -56,30 +56,30 @@ Future<bool> upload(
     return false;
   }
   var timer = Stopwatch()..start();
-  FormData formData =
+  final formData =
       FormData.from(<String, dynamic>{"file": UploadFileInfo(file, filename)});
   try {
     //print("URL $serverUrl");
     //print("FORM $formData");
     response = await dio.post<dynamic>(serverUrl, data: formData);
   } on DioError catch (e) {
-    String msg = "Can not upload: ${e.type} : ${e.message}";
+    final msg = "Can not upload: ${e.type} : ${e.message}";
     unawaited(log.errorScreen(msg, context: context));
     return false;
   } catch (e) {
-    String msg = "Can not upload: ${e.message}";
+    final msg = "Can not upload: ${e.message}";
     unawaited(log.errorScreen(msg, context: context));
     return false;
   }
   if (response != null) {
     if (response.statusCode != 200) {
-      String msg = "Response status code: ${response.statusCode}";
+      final msg = "Response status code: ${response.statusCode}";
       unawaited(log.errorScreen(msg, context: context));
       return false;
     }
   }
   timer.stop();
-  String elapsed = (timer.elapsedMilliseconds / 1000).toStringAsFixed(1);
+  final elapsed = (timer.elapsedMilliseconds / 1000).toStringAsFixed(1);
   unawaited(log.infoScreen("File uploaded in $elapsed s", context: context));
   return true;
 }
@@ -92,13 +92,13 @@ Future<void> zipUpload(
   try {
     file = await zip(directory: directory, context: context);
   } catch (e) {
-    String msg = "Can not zip directory: ${e.message}";
+    final msg = "Can not zip directory: ${e.message}";
     unawaited(log.errorScreen(msg, context: context));
     return null;
   }
   if (file == null) return null;
-  String filename = path.basename(file.path);
-  bool ok = await upload(
+  final filename = path.basename(file.path);
+  final ok = await upload(
       file: file, serverUrl: serverUrl, filename: filename, context: context);
   if (!ok) {
     return null;
@@ -106,7 +106,7 @@ Future<void> zipUpload(
   try {
     file.deleteSync();
   } catch (e) {
-    String msg = "Can not delete file: ${e.message}";
+    final msg = "Can not delete file: ${e.message}";
     unawaited(log.errorScreen(msg, context: context));
   }
 }
