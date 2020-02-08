@@ -1,14 +1,3 @@
-import 'package:err/err.dart';
+import 'package:err_router/err_router.dart';
 
-ErrRouter log;
-
-void initLogger(ErrRouter errRouter) {
-  if (errRouter == null) {
-    log = ErrRouter(
-        errorRoute: [ErrRoute.screen, ErrRoute.console],
-        infoRoute: [ErrRoute.screen, ErrRoute.console],
-        debugRoute: [ErrRoute.blackHole]);
-  } else {
-    log = errRouter;
-  }
-}
+final ErrRouter log = ErrRouter();

@@ -1,30 +1,33 @@
 import 'dart:io';
+
 import 'package:dataview/src/logger.dart';
+import 'package:err_router/err_router.dart';
+import 'package:filex/filex.dart';
 import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:filex/filex.dart';
-import 'package:err/err.dart';
+
+import 'logger.dart';
 import 'zip_upload/zip_upload.dart';
 
 class _DataviewPageState extends State<DataviewPage> {
   _DataviewPageState({this.path, this.uploadTo, this.errRouter}) {
     path ??= "";
-    initLogger(errRouter);
+    errRouter ??= log;
   }
 
   String basePath;
   String path;
   final String uploadTo;
   FilexController controller;
-  final ErrRouter errRouter;
+  ErrRouter errRouter;
   bool ready = false;
 
   @override
   void initState() {
     getApplicationDocumentsDirectory().then((dir) {
       basePath = dir.path;
-      controller =
-          FilexController(path: basePath + path, showHiddenFiles: true);
+      controller = FilexController(path: basePath + path)
+        ..showHiddenFiles = true;
       setState(() => ready = true);
     });
     super.initState();
