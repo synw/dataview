@@ -11,10 +11,19 @@ import (
 )
 
 func upload(c echo.Context) error {
+	fmt.Println("Upload handler")
 	file, err := c.FormFile("file")
 	if err != nil {
+		fmt.Println("Error receiving file")
 		return err
 	}
+	if file == nil {
+		fmt.Println("Nil file")
+	} else {
+		fmt.Println("File:")
+		fmt.Println(file)
+	}
+	fmt.Println("Opening ", file.Filename)
 	src, err := file.Open()
 	if err != nil {
 		return err
