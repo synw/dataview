@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.5.0
+
+Update Flutter project and dependencies
+
 ## 0.4.0
 
 - **Api change**: the required positional parameter for path has been changed for an optional named `path` parameter
